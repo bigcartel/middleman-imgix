@@ -1,11 +1,14 @@
 require 'middleman-core'
 
 class Middleman::Imgix < ::Middleman::Extension
-  option :host, nil, 'Your Imgix host', required: true
-  option :use_https, true, 'Whether to use http or https for Imgix'
-  option :default_params, { auto: 'format' }, 'Default Imgix params to use on all images'
-  option :fluid_img_tags, true, 'Whether to use data-src and apply Imgix classes to img tags'
-  option :fluid_img_classes, 'imgix-fluid', 'CSS classes to append to Imgix img tags'
+  option :host, nil, 'Your Imgix host.', required: true
+  option :secure_url_token, nil, 'Your Imgix secure_url_token.'
+  option :use_https, true, 'Whether to use http or https for Imgix.'
+  option :shard_strategy, :crc, 'Your Imgix shard strategy.'
+  option :include_library_param, true, 'Include the Imgix library param in each URL.'
+  option :default_params, { auto: 'format' }, 'Default Imgix params to use on all images.'
+  option :fluid_img_tags, true, 'Whether to use data-src and apply Imgix classes to img tags.'
+  option :fluid_img_classes, 'imgix-fluid', 'CSS classes to append to Imgix img tags.'
   option :exts, %w(.png .jpg .jpeg), 'List of extensions that get converted to Imgix URLs.'
   option :sources, %w(.css .htm .html .js .php .xhtml), 'List of extensions that are searched for Imgix images.'
   option :ignore, [], 'Regexes of filenames to skip processing for Imgix rewrites'
@@ -22,18 +25,21 @@ class Middleman::Imgix < ::Middleman::Extension
                             ignore: options.ignore,
                             rewrite_ignore: options.rewrite_ignore,
                             proc: method(:rewrite_url)
+
+    require 'imgix'
   end
 
   def rewrite_url(asset_path, dirpath, _request_path)
     uri = URI.parse(asset_path)
 
     if uri.relative?
-      uri.scheme = options.use_https ? 'https' : 'http'
-      uri.host = options.host
-      uri.query = apply_default_query_params(uri.query)
+      params = CGI::parse(uri.query.to_s)
+      params = params.reverse_merge(options.default_params)
+      path = client.path(uri.path)
+      path.defaults.to_url(params)
+    else
+      asset_path
     end
-
-    uri.to_s
   end
   memoize :rewrite_url
 
@@ -58,7 +64,13 @@ class Middleman::Imgix < ::Middleman::Extension
 
   private
 
-  def apply_default_query_params(query)
-    CGI::parse(query.to_s).reverse_merge(options.default_params).to_query
+  def client
+    @client ||= Imgix::Client.new({
+      host: options.host,
+      secure_url_token: options.secure_url_token,
+      use_https: options.use_https,
+      shard_strategy: options.shard_strategy,
+      include_library_param: options.include_library_param
+    })
   end
 end

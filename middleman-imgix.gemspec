@@ -12,4 +12,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_runtime_dependency 'middleman-core', '>= 4.1.8'
+  gem.add_runtime_dependency 'imgix', '>= 1.1.0'
 end
