@@ -36,7 +36,7 @@ class Middleman::Imgix < ::Middleman::Extension
       params = CGI::parse(uri.query.to_s)
       params = params.reverse_merge(options.default_params)
       path = client.path(uri.path)
-      path.defaults.to_url(params)
+      path.to_url(params)
     else
       asset_path
     end
@@ -46,7 +46,8 @@ class Middleman::Imgix < ::Middleman::Extension
   helpers do
     def image_tag(path, params={})
       if imgix_options.fluid_img_tags && imgix_image?(path)
-        super(path, params.update(class: imgix_options.fluid_img_classes)).gsub('src=', 'data-src=')
+        params[:class] = params[:class].to_s.split(' ').push(imgix_options.fluid_img_classes).join(' ')
+        super(path, params).gsub('src=', 'data-src=')
       else
         super
       end
