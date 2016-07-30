@@ -9,10 +9,10 @@ class Middleman::Imgix < ::Middleman::Extension
   option :default_params, { auto: 'format' }, 'Default Imgix params to use on all images.'
   option :fluid_img_tags, true, 'Whether to use data-src and apply Imgix classes to img tags.'
   option :fluid_img_classes, 'imgix-fluid', 'CSS classes to append to Imgix img tags.'
-  option :exts, %w(.png .jpg .jpeg), 'List of extensions that get converted to Imgix URLs.'
-  option :sources, %w(.css .htm .html .js .php .xhtml), 'List of extensions that are searched for Imgix images.'
-  option :ignore, [], 'Regexes of filenames to skip processing for Imgix rewrites'
-  option :rewrite_ignore, [], 'Regexes of filenames to skip processing for Imgix rewrites'
+  option :exts, %w(.png .jpg .jpeg), 'List of file extensions that get converted to Imgix URLs.'
+  option :sources, %w(.css .htm .html .js .php .xhtml), 'List of source extensions that are searched for Imgix images.'
+  option :ignore, [], 'Regexes of filenames to skip adding Imgix to'
+  option :rewrite_ignore, [], 'Regexes of filenames to skip processing for path rewrites'
 
   expose_to_template imgix_options: :options
 
@@ -59,7 +59,7 @@ class Middleman::Imgix < ::Middleman::Extension
       imgix_options.exts.include?(::File.extname(uri.path)) &&
       imgix_options.sources.include?(::File.extname(current_resource.path)) &&
       imgix_options.ignore.none? { |r| ::Middleman::Util.should_ignore?(r, uri.path) } &&
-      imgix_options.rewrite_ignore.none? { |i| ::Middleman::Util.path_match?(i, uri.path) }
+      imgix_options.rewrite_ignore.none? { |i| ::Middleman::Util.path_match(i, uri.path) }
     end
   end
 
