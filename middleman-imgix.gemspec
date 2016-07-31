@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name          = 'middleman-imgix'
-  gem.version       = '1.0.1'
+  gem.version       = '1.0.2'
   gem.licenses      = ['MIT']
   gem.authors       = ['Big Cartel']
   gem.email         = ['dev@bigcartel.com']
@@ -13,6 +13,6 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($/)
   gem.require_paths = ['lib']
 
-  gem.add_runtime_dependency 'middleman-core', '~> 4.1', '>= 4.1.8'
-  gem.add_runtime_dependency 'imgix', '~> 1.1', '>= 1.1.0'
+  gem.add_runtime_dependency 'middleman-core', '>= 4.1'
+  gem.add_runtime_dependency 'imgix', '>= 1.1'
 end
