@@ -50,12 +50,12 @@ describe "middleman-imgix", type: :feature do
   describe "shard_strategy" do
     it "should be crc by default" do
       visit_app('host: ["1.example.com", "2.example.com", "3.example.com"]')
-      expect(page.body).to eq(%{<img data-src="https://2.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img data-src="https://2.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
+      expect(page.body).to eq(%{<img src="https://2.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="https://2.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
     end
 
     it "should work when cycle" do
       visit_app('host: ["1.example.com", "2.example.com", "3.example.com"], shard_strategy: :cycle')
-      expect(page.body).to eq(%{<img data-src="https://1.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img data-src="https://2.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
+      expect(page.body).to eq(%{<img src="https://1.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="https://2.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
     end
   end
 
@@ -84,40 +84,32 @@ describe "middleman-imgix", type: :feature do
     end
   end
 
-  describe "fluid_img_tags" do
-    it "should be true by default" do
+  describe "imgix_js_version" do
+    it "should not use imgix.js default" do
       visit_app
-      expect(page.body).to include('data-src=')
+      expect(page.body).to include(%{<img src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />})
     end
 
-    it "should work when false" do
-      visit_app('host: "images.example.com", fluid_img_tags: false')
-      expect(page.body).to_not include('data-src=')
-      expect(page.body).to include('src=')
-    end
-  end
-
-  describe "fluid_img_classes" do
-    it "should be imgix-fluid by default" do
-      visit_app
-      expect(page.body).to include('class="imgix-fluid"')
+    it "should support imgix.js v2" do
+      visit_app('host: "images.example.com", imgix_js_version: 2')
+      expect(page.body).to include(%{<img data-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />})
     end
 
-    it "should work when false" do
-      visit_app('host: "images.example.com", fluid_img_classes: "custom-class"')
-      expect(page.body).to include('class="custom-class"')
+    it "should support imgix.js v3" do
+      visit_app('host: "images.example.com", imgix_js_version: 3')
+      expect(page.body).to include(%{<img ix-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />})
     end
   end
 
   describe "exts" do
     it "should be pngs and jpgs by default" do
       visit_app
-      expect(page.body).to eq(%{<img data-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img data-src="https://images.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
+      expect(page.body).to eq(%{<img src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="https://images.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="/images/test.gif" alt="Test" />\n})
     end
 
     it "should work when customized" do
       visit_app('host: "images.example.com", exts: %w(.png .jpg .jpeg .gif)')
-      expect(page.body).to eq(%{<img data-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img data-src="https://images.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n<img data-src="https://images.example.com/images/test.gif?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />\n})
+      expect(page.body).to eq(%{<img src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="https://images.example.com/images/test.jpg?ixlib=rb-1.1.0&auto=format" alt="Test" />\n<img src="https://images.example.com/images/test.gif?ixlib=rb-1.1.0&auto=format" alt="Test" />\n})
     end
   end
 

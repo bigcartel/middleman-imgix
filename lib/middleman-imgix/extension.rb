@@ -1,18 +1,17 @@
 require 'middleman-core'
 
 class Middleman::Imgix < ::Middleman::Extension
-  option :host, nil, 'Your Imgix host.', required: true
-  option :secure_url_token, nil, 'Your Imgix secure_url_token.'
-  option :use_https, true, 'Whether to use http or https for Imgix.'
-  option :shard_strategy, :crc, 'Your Imgix shard strategy.'
-  option :include_library_param, true, 'Include the Imgix library param in each URL.'
-  option :default_params, { auto: 'format' }, 'Default Imgix params to use on all images.'
-  option :fluid_img_tags, true, 'Whether to use data-src and apply Imgix classes to img tags.'
-  option :fluid_img_classes, 'imgix-fluid', 'CSS classes to append to Imgix img tags.'
-  option :exts, %w(.png .jpg .jpeg), 'List of file extensions that get converted to Imgix URLs.'
-  option :sources, %w(.css .htm .html .js .php .xhtml), 'List of source extensions that are searched for Imgix images.'
-  option :ignore, [], 'Regexes of filenames to skip adding Imgix to'
-  option :rewrite_ignore, [], 'Regexes of filenames to skip processing for path rewrites'
+  option :host, nil, 'Your imgix host.', required: true
+  option :secure_url_token, nil, 'Your imgix secure_url_token.'
+  option :use_https, true, 'Whether to use http or https for imgix.'
+  option :shard_strategy, :crc, 'Your imgix shard strategy.'
+  option :include_library_param, true, 'Include the imgix library param in each URL.'
+  option :default_params, { auto: 'format' }, 'Default imgix params to use on all images.'
+  option :imgix_js_version, nil, 'Converts image_tags to support imgix.js version 2 or 3.'
+  option :exts, %w(.png .jpg .jpeg), 'List of file extensions that get converted to imgix URLs.'
+  option :sources, %w(.css .htm .html .js .php .xhtml), 'List of source extensions that are searched for imgix images.'
+  option :ignore, [], 'Regexes of filenames to skip adding imgix to.'
+  option :rewrite_ignore, [], 'Regexes of filenames to skip processing for path rewrites.'
 
   expose_to_template imgix_options: :options
 
@@ -45,9 +44,11 @@ class Middleman::Imgix < ::Middleman::Extension
 
   helpers do
     def image_tag(path, params={})
-      if imgix_options.fluid_img_tags && imgix_image?(path)
-        params[:class] = params[:class].to_s.split(' ').push(imgix_options.fluid_img_classes).join(' ')
-        super(path, params).gsub('src=', 'data-src=')
+      if imgix_options.imgix_js_version && imgix_image?(path)
+        version = imgix_options.imgix_js_version.to_i
+        params[:class] = 'imgix-fluid' if version == 2
+        src = version == 2 ? 'data-src=' : 'ix-src='
+        super(path, params).gsub('src=', src)
       else
         super
       end
