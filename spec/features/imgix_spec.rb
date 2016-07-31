@@ -90,14 +90,20 @@ describe "middleman-imgix", type: :feature do
       expect(page.body).to include(%{<img src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />})
     end
 
+    it "should support imgix.js v3" do
+      visit_app('host: "images.example.com", imgix_js_version: 3')
+      expect(page.body).to include(%{<img ix-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />})
+    end
+
     it "should support imgix.js v2" do
       visit_app('host: "images.example.com", imgix_js_version: 2')
       expect(page.body).to include(%{<img data-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="imgix-fluid" alt="Test" />})
     end
 
-    it "should support imgix.js v3" do
-      visit_app('host: "images.example.com", imgix_js_version: 3')
-      expect(page.body).to include(%{<img ix-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" alt="Test" />})
+    it "should support imgix.js v2 with a custom class" do
+      app("activate :imgix, host: 'images.example.com', imgix_js_version: 2")
+      visit '/imgix_js_2_class.html'
+      expect(page.body).to include(%{<img data-src="https://images.example.com/images/test.png?ixlib=rb-1.1.0&auto=format" class="myclass imgix-fluid imgix-fluid-bg" alt="Test" />})
     end
   end
 

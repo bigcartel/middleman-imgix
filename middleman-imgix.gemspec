@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name          = 'middleman-imgix'
-  gem.version       = '1.0.2'
+  gem.version       = '1.0.3'
   gem.licenses      = ['MIT']
   gem.authors       = ['Big Cartel']
   gem.email         = ['dev@bigcartel.com']

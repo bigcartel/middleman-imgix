@@ -46,7 +46,7 @@ class Middleman::Imgix < ::Middleman::Extension
     def image_tag(path, params={})
       if imgix_options.imgix_js_version && imgix_image?(path)
         version = imgix_options.imgix_js_version.to_i
-        params[:class] = 'imgix-fluid' if version == 2
+        params[:class] ||= 'imgix-fluid' if version == 2
         src = version == 2 ? 'data-src=' : 'ix-src='
         super(path, params).gsub('src=', src)
       else
